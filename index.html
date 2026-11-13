@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Energy & Carbon Estimation Dashboard | EVS Hyderabad Case Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Announcement / Case Study Banner -->
+  <aside class="case-study-banner">
+    <div class="banner-content">
+      <span class="badge-tag">EVS Case Study</span>
+      <span><strong>Urban Energy & Carbon Audit</strong> &bull; Hyderabad, Telangana (India Grid FY 2025&ndash;26)</span>
+    </div>
+    <div class="banner-actions">
+      <button id="btn-self-test" class="btn btn-sm btn-outline-light" title="Run acceptance test suite in console">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Run Self-Test
+      </button>
+      <button id="btn-reset" class="btn btn-sm btn-outline-light" title="Reset all inputs to sample data">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+        Reset to Sample Data
+      </button>
+      <button id="btn-print" class="btn btn-sm btn-primary-light" title="Print or save as PDF report">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print Report
+      </button>
+    </div>
+  </aside>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Smart Energy & Carbon Estimation Dashboard</h1>
+          <p class="subtitle">Live household power consumption audit, carbon footprint estimation, and conservation modeller</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Grid Factor (CEA v22.0)</span>
+          <span class="meta-value">0.675 kg CO₂/kWh</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Location Focus</span>
+          <span class="meta-value">Hyderabad / TSSPDCL</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+
+    <!-- Global Parameters / Tariff Bar -->
+    <section class="card config-bar">
+      <div class="config-grid">
+        <div class="config-item">
+          <label for="input-tariff">
+            Electricity Tariff (&#8377; / unit)
+            <span class="tooltip-icon" title="Per unit electricity rate. TSSPDCL residential telescopic slabs typically average ₹7–₹9/kWh for 300+ units.">&#9432;</span>
+          </label>
+          <div class="input-with-affix">
+            <span class="affix">&#8377;</span>
+            <input type="number" id="input-tariff" min="0" max="100" step="0.1" value="8" placeholder="8">
+          </div>
+          <small class="helper-text">sample rate: change to match your electricity bill</small>
+        </div>
+
+        <div class="config-item">
+          <label for="input-last-month-kwh">
+            Last Month Consumption
+            <span class="tooltip-icon" title="Your previous billing cycle kWh for comparative progress tracking.">&#9432;</span>
+          </label>
+          <div class="input-with-affix">
+            <input type="number" id="input-last-month-kwh" min="0" step="1" value="420" placeholder="420">
+            <span class="affix suffix">kWh</span>
+          </div>
+          <small class="helper-text">Previous billing cycle baseline (sample: 420 kWh)</small>
+        </div>
+
+        <div class="config-item">
+          <label for="input-goal-co2">
+            Monthly CO₂ Budget Goal
+            <span class="tooltip-icon" title="Target ceiling for your household's monthly greenhouse gas emissions.">&#9432;</span>
+          </label>
+          <div class="input-with-affix">
+            <input type="number" id="input-goal-co2" min="1" step="5" value="250" placeholder="250">
+            <span class="affix suffix">kg CO₂</span>
+          </div>
+          <small class="helper-text">Target carbon ceiling (sample: 250 kg/mo)</small>
+        </div>
+
+        <div class="config-item status-pill-item">
+          <div class="live-indicator">
+            <span class="pulse-dot"></span>
+            <div>
+              <span class="indicator-title">Live Dynamic Engine</span>
+              <span class="indicator-subtitle">Calculates instantly on every keystroke</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: Summary Cards -->
+    <section class="summary-section">
+      <div class="summary-grid">
+        <!-- Monthly kWh Card -->
+        <div class="card summary-card">
+          <div class="summary-card-header">
+            <span class="summary-title">Monthly Energy</span>
+            <div class="card-icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+            </div>
+          </div>
+          <div class="summary-value" id="card-monthly-kwh">0.00</div>
+          <div class="summary-unit">kWh / month</div>
+          <div class="summary-footer">
+            <span id="card-daily-kwh">0.00</span> kWh daily avg (30 days)
+          </div>
+        </div>
+
+        <!-- Estimated Bill Card -->
+        <div class="card summary-card">
+          <div class="summary-card-header">
+            <span class="summary-title">Estimated Monthly Bill</span>
+            <div class="card-icon amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><line x1="12" y1="18" x2="12" y2="6"></line></svg>
+            </div>
+          </div>
+          <div class="summary-value">&#8377;<span id="card-monthly-bill">0.00</span></div>
+          <div class="summary-unit">Indian Rupees (INR)</div>
+          <div class="summary-footer">
+            Based on &#8377;<span id="card-bill-tariff">8.00</span> / unit tariff
+          </div>
+        </div>
+
+        <!-- Monthly CO2 Card -->
+        <div class="card summary-card">
+          <div class="summary-card-header">
+            <span class="summary-title">Carbon Footprint</span>
+            <div class="card-icon red">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+            </div>
+          </div>
+          <div class="summary-value" id="card-monthly-co2">0.00</div>
+          <div class="summary-unit">kg CO₂e / month</div>
+          <div class="summary-footer">
+            Yearly: <strong id="card-yearly-co2">0.00</strong> kg CO₂
+          </div>
+        </div>
+
+        <!-- Eco Score Card -->
+        <div class="card summary-card score-card">
+          <div class="summary-card-header">
+            <span class="summary-title">Household Eco Score</span>
+            <div class="card-icon green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+          </div>
+          <div class="score-display">
+            <span class="score-number" id="card-eco-score">--</span>
+            <span class="score-max">/ 100</span>
+          </div>
+          <div class="score-badge-wrap">
+            <span class="score-badge" id="card-eco-label">Calculating...</span>
+          </div>
+          <div class="summary-footer">
+            Target: <span id="card-eco-target">250.00</span> kg CO₂
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: Goal Tracker (Placed prominently near summaries) -->
+    <section class="card goal-tracker-section">
+      <div class="section-heading-row">
+        <div>
+          <h2>Goal Tracker & Monthly Carbon Budget</h2>
+          <p class="section-subtitle">Real-time tracking of actual carbon emission versus household target</p>
+        </div>
+        <div class="goal-stats-pill" id="goal-delta-pill">
+          <span id="goal-status-text">Comparing against target...</span>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="goal-progress-fill" style="width: 0%;"></div>
+        </div>
+        <div class="progress-markers">
+          <span>0 kg</span>
+          <span id="marker-mid">125 kg (50%)</span>
+          <span id="marker-target">Target: 250 kg (100%)</span>
+          <span id="marker-alert">+10% Warning</span>
+        </div>
+      </div>
+
+      <div class="goal-message-box" id="goal-message-box">
+        <!-- Live status updated via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION 2: Charts & Visual Analytics -->
+    <section class="charts-section">
+      <div class="charts-grid">
+        <!-- Daily Usage Chart & Editable Daily Log -->
+        <div class="card chart-card daily-usage-card">
+          <div class="card-header-flex">
+            <div>
+              <h3>Daily Energy Usage Trend (kWh)</h3>
+              <p class="card-subtitle">Editable 14-day tracking log with real-time daily CO₂ conversion</p>
+            </div>
+            <button class="btn btn-xs btn-outline" id="btn-toggle-daily-log">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>Toggle Daily Log Table</span>
+            </button>
+          </div>
+
+          <div class="chart-wrapper">
+            <canvas id="chart-daily-usage"></canvas>
+          </div>
+
+          <!-- Collapsible / Editable Daily Log Table -->
+          <div class="daily-log-container" id="daily-log-container">
+            <div class="daily-log-header">
+              <h4>14-Day Sample Usage Log <span class="badge-sample">sample data</span></h4>
+              <button class="btn btn-xs btn-outline" id="btn-reset-daily-log">Reset 14 Days</button>
+            </div>
+            <div class="table-responsive daily-log-table-wrap">
+              <table class="data-table small-table" id="daily-log-table">
+                <thead>
+                  <tr>
+                    <th>Day #</th>
+                    <th>Date</th>
+                    <th>Usage (kWh)</th>
+                    <th>Computed CO₂ (kg)</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-log-tbody">
+                  <!-- Generated via script.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appliance-wise Share Donut Chart -->
+        <div class="card chart-card appliance-share-card">
+          <div class="card-header-flex">
+            <div>
+              <h3>Appliance Consumption Share</h3>
+              <p class="card-subtitle">Monthly kWh contribution by household appliance</p>
+            </div>
+          </div>
+          <div class="chart-wrapper donut-wrapper">
+            <canvas id="chart-appliance-share"></canvas>
+          </div>
+          <div class="chart-legend-custom" id="appliance-chart-legend">
+            <!-- Custom dynamic legend items -->
+          </div>
+        </div>
+
+        <!-- This Month vs Last Month Comparison -->
+        <div class="card chart-card comparison-card">
+          <div class="card-header-flex">
+            <div>
+              <h3>Monthly Performance Comparison</h3>
+              <p class="card-subtitle">Current estimated monthly total vs previous billing cycle</p>
+            </div>
+          </div>
+
+          <div class="comparison-display-box" id="comparison-display-box">
+            <!-- Populated via script.js -->
+          </div>
+
+          <div class="chart-wrapper comparison-chart-wrapper">
+            <canvas id="chart-comparison"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Appliance Tracker Table -->
+    <section class="card appliance-tracker-section">
+      <div class="card-header-flex">
+        <div>
+          <h2>Appliance Inventory & Load Tracker</h2>
+          <p class="section-subtitle">Add or edit individual appliances to update household energy and carbon metrics live</p>
+        </div>
+        <div class="table-actions-group">
+          <div class="preset-dropdown-wrap">
+            <select id="select-preset-appliance" class="select-preset">
+              <option value="">+ Add Quick Preset...</option>
+              <option value="Geyser (sample)|2000|1.5|1">Water Geyser (2000 W, 1.5 h)</option>
+              <option value="Microwave Oven (sample)|1200|0.5|1">Microwave Oven (1200 W, 0.5 h)</option>
+              <option value="Washing Machine (sample)|500|1|1">Washing Machine (500 W, 1 h)</option>
+              <option value="Water Pump (sample)|750|1|1">Submersible Water Pump (750 W, 1 h)</option>
+              <option value="Air Cooler (sample)|180|8|1">Desert Air Cooler (180 W, 8 h)</option>
+              <option value="Electric Iron (sample)|1000|0.5|1">Electric Iron (1000 W, 0.5 h)</option>
+              <option value="Wi-Fi Router (sample)|12|24|1">Wi-Fi Router (12 W, 24 h)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-add-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Appliance
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table" id="appliance-table">
+          <thead>
+            <tr>
+              <th style="width: 26%;">Appliance</th>
+              <th style="width: 14%;">Watts</th>
+              <th style="width: 14%;">Hours / Day</th>
+              <th style="width: 10%;">Quantity</th>
+              <th style="width: 12%;">kWh / Day</th>
+              <th style="width: 12%;">kWh / Month</th>
+              <th style="width: 12%;">CO₂ / Month (kg)</th>
+              <th style="width: 6%; text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="appliance-tbody">
+            <!-- Dynamic Rows injected via script.js -->
+          </tbody>
+          <tfoot>
+            <tr class="table-total-row">
+              <td><strong>Inventory Totals</strong></td>
+              <td id="tot-watts"><strong>0 W</strong></td>
+              <td id="tot-hours"><strong>--</strong></td>
+              <td id="tot-qty"><strong>0</strong></td>
+              <td id="tot-daily-kwh"><strong>0.00</strong></td>
+              <td id="tot-monthly-kwh"><strong>0.00</strong></td>
+              <td id="tot-monthly-co2"><strong>0.00</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-footnote">
+        <span>💡 <em>Formulas: Daily kWh = (Watts &times; Hours/day &times; Quantity) / 1000 &bull; Monthly kWh = Daily kWh &times; 30 &bull; Monthly CO₂ = Monthly kWh &times; 0.675 kg</em></span>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Carbon Estimator Panel -->
+    <section class="card carbon-estimator-section">
+      <div class="section-heading-row">
+        <div>
+          <h2>Carbon Estimator & Impact Decomposition Panel</h2>
+          <p class="section-subtitle">Granular emissions calculations based on India National Grid Emission Factors</p>
+        </div>
+        <div class="source-tag">
+          <span>CEA Baseline v22.0 (FY 2025&ndash;26)</span>
+        </div>
+      </div>
+
+      <div class="carbon-stats-grid">
+        <div class="carbon-stat-card">
+          <span class="carbon-stat-label">Total Monthly CO₂</span>
+          <div class="carbon-stat-val">
+            <span id="panel-monthly-co2">0.00</span>
+            <span class="unit">kg CO₂e</span>
+          </div>
+          <small class="carbon-stat-sub">Based on 30-day operating cycle</small>
+        </div>
+
+        <div class="carbon-stat-card">
+          <span class="carbon-stat-label">Total Yearly CO₂</span>
+          <div class="carbon-stat-val">
+            <span id="panel-yearly-co2">0.00</span>
+            <span class="unit">kg CO₂e / yr</span>
+          </div>
+          <small class="carbon-stat-sub">Annualized projection (12 months)</small>
+        </div>
+
+        <div class="carbon-stat-card">
+          <span class="carbon-stat-label">Emission Factor Used</span>
+          <div class="carbon-stat-val">
+            <span id="panel-emission-factor">0.675</span>
+            <span class="unit">kg CO₂ / kWh</span>
+          </div>
+          <small class="carbon-stat-sub">Central Electricity Authority (India)</small>
+        </div>
+
+        <div class="carbon-stat-card">
+          <span class="carbon-stat-label">Forest Offset Equivalence</span>
+          <div class="carbon-stat-val">
+            <span id="panel-trees-equivalent">0.0</span>
+            <span class="unit">Urban Trees</span>
+          </div>
+          <small class="carbon-stat-sub">Trees required to absorb annual emissions (~22 kg/tree/yr)</small>
+        </div>
+      </div>
+
+      <!-- Live Step-by-Step Breakdown for the Highest-Use Appliance -->
+      <div class="highest-appliance-breakdown-box">
+        <div class="breakdown-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <div class="breakdown-content">
+          <div class="breakdown-header">
+            <h4>Live Step-by-Step Mathematical Decomposition (Highest Consuming Appliance)</h4>
+            <span class="badge-highlight" id="breakdown-highest-name">Analyzing...</span>
+          </div>
+          <p class="breakdown-step-text" id="breakdown-step-formula">
+            <!-- Dynamic live math formula string inserted here -->
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Smart Tips Panel -->
+    <section class="card smart-tips-section">
+      <div class="section-heading-row">
+        <div>
+          <h2>Smart Energy Efficiency & Conservation Tips Panel</h2>
+          <p class="section-subtitle">Calculate exact financial and carbon reductions from actionable behavioral interventions</p>
+        </div>
+      </div>
+
+      <div class="tips-grid">
+        <!-- Tip A: AC Temperature -->
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <div class="tip-badge tip-badge-blue">Tip 1: Thermal Comfort</div>
+            <h3>AC Temperature Optimization</h3>
+            <p class="tip-desc">BEE guidance: every 1&deg;C increase in setpoint cuts air conditioner compressor power by 6% (capped at 24%).</p>
+          </div>
+
+          <div class="tip-inputs-grid">
+            <div class="tip-input-group">
+              <label for="ac-current-temp">Current Setpoint (&deg;C)</label>
+              <input type="number" id="ac-current-temp" min="16" max="30" value="20">
+            </div>
+            <div class="tip-input-group">
+              <label for="ac-target-temp">Target Setpoint (&deg;C)</label>
+              <input type="number" id="ac-target-temp" min="16" max="30" value="24">
+            </div>
+          </div>
+
+          <div class="tip-detail-note" id="ac-source-note">
+            Linked to inventory AC: <strong id="ac-inventory-kwh">270.00</strong> kWh/month
+          </div>
+
+          <div class="tip-savings-result">
+            <div class="saving-item">
+              <span class="saving-num" id="tip-ac-kwh">0.00</span>
+              <span class="saving-lbl">Saved kWh / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num">&#8377;<span id="tip-ac-cost">0.00</span></span>
+              <span class="saving-lbl">Saved &#8377; / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num" id="tip-ac-co2">0.00</span>
+              <span class="saving-lbl">Saved CO₂ / mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tip B: LED Switch -->
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <div class="tip-badge tip-badge-amber">Tip 2: Efficient Lighting</div>
+            <h3>LED Bulb Switch</h3>
+            <p class="tip-desc">Replace incandescent or CFL fixtures with high-efficiency LEDs to dramatically slash lighting load.</p>
+          </div>
+
+          <div class="tip-inputs-grid four-col">
+            <div class="tip-input-group">
+              <label for="led-old-watts">Old Bulb Watts (W)</label>
+              <input type="number" id="led-old-watts" min="1" max="500" value="60">
+            </div>
+            <div class="tip-input-group">
+              <label for="led-new-watts">LED Watts (W)</label>
+              <input type="number" id="led-new-watts" min="1" max="100" value="9">
+            </div>
+            <div class="tip-input-group">
+              <label for="led-qty">Number of Bulbs</label>
+              <input type="number" id="led-qty" min="1" max="100" value="4">
+            </div>
+            <div class="tip-input-group">
+              <label for="led-hours">Hours / Day</label>
+              <input type="number" id="led-hours" min="0" max="24" step="0.5" value="5">
+            </div>
+          </div>
+
+          <div class="tip-savings-result">
+            <div class="saving-item">
+              <span class="saving-num" id="tip-led-kwh">0.00</span>
+              <span class="saving-lbl">Saved kWh / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num">&#8377;<span id="tip-led-cost">0.00</span></span>
+              <span class="saving-lbl">Saved &#8377; / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num" id="tip-led-co2">0.00</span>
+              <span class="saving-lbl">Saved CO₂ / mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tip C: Standby Power -->
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <div class="tip-badge tip-badge-purple">Tip 3: Phantom Load</div>
+            <h3>Eliminate Standby Power</h3>
+            <p class="tip-desc">Switch off TVs, set-top boxes, chargers, and microwaves at the plug socket when not actively in use.</p>
+          </div>
+
+          <div class="tip-inputs-grid three-col">
+            <div class="tip-input-group">
+              <label for="standby-watts">Standby Watts / Device</label>
+              <input type="number" id="standby-watts" min="0" max="50" step="0.5" value="5">
+            </div>
+            <div class="tip-input-group">
+              <label for="standby-devices">Number of Devices</label>
+              <input type="number" id="standby-devices" min="1" max="50" value="6">
+            </div>
+            <div class="tip-input-group">
+              <label for="standby-hours">Idle Hours / Day</label>
+              <input type="number" id="standby-hours" min="0" max="24" step="0.5" value="18">
+            </div>
+          </div>
+
+          <div class="tip-savings-result">
+            <div class="saving-item">
+              <span class="saving-num" id="tip-standby-kwh">0.00</span>
+              <span class="saving-lbl">Saved kWh / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num">&#8377;<span id="tip-standby-cost">0.00</span></span>
+              <span class="saving-lbl">Saved &#8377; / mo</span>
+            </div>
+            <div class="saving-item">
+              <span class="saving-num" id="tip-standby-co2">0.00</span>
+              <span class="saving-lbl">Saved CO₂ / mo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combined Total Potential Monthly Savings Box -->
+      <div class="total-savings-box">
+        <div class="total-savings-header">
+          <div class="savings-glow-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <div>
+            <h3>Total Potential Monthly Savings</h3>
+            <p>Combined energy, financial, and emissions conservation across all three smart tips:</p>
+          </div>
+        </div>
+
+        <div class="total-savings-grid">
+          <div class="total-saving-card">
+            <span class="ts-label">Total Saved kWh</span>
+            <div class="ts-val"><span id="total-saved-kwh">0.00</span> <small>kWh / mo</small></div>
+          </div>
+          <div class="total-saving-card">
+            <span class="ts-label">Total Saved &#8377;</span>
+            <div class="ts-val">&#8377;<span id="total-saved-cost">0.00</span> <small>/ mo</small></div>
+          </div>
+          <div class="total-saving-card">
+            <span class="ts-label">Total Saved CO₂</span>
+            <div class="ts-val"><span id="total-saved-co2">0.00</span> <small>kg CO₂ / mo</small></div>
+          </div>
+          <div class="total-saving-card highlight-card">
+            <span class="ts-label">Footprint Reduction</span>
+            <div class="ts-val"><span id="total-saved-percent">0.0</span>%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: SDG Strip -->
+    <section class="card sdg-section">
+      <div class="sdg-header">
+        <div>
+          <h3>Alignment with UN Sustainable Development Goals (SDGs)</h3>
+          <p class="sdg-subtitle">How household energy auditing directly drives the 2030 Agenda for Sustainable Development</p>
+        </div>
+      </div>
+
+      <div class="sdg-grid">
+        <!-- SDG 7 -->
+        <div class="sdg-badge-card sdg-7" title="Ensure access to affordable, reliable, sustainable and modern energy for all">
+          <div class="sdg-number">7</div>
+          <div class="sdg-content">
+            <h4>Affordable & Clean Energy</h4>
+            <p>Target 7.3: Double the global rate of improvement in energy efficiency.</p>
+          </div>
+        </div>
+
+        <!-- SDG 9 -->
+        <div class="sdg-badge-card sdg-9" title="Build resilient infrastructure, promote inclusive and sustainable industrialization and foster innovation">
+          <div class="sdg-number">9</div>
+          <div class="sdg-content">
+            <h4>Industry & Innovation</h4>
+            <p>Target 9.4: Upgrade infrastructure to make them sustainable with increased resource-use efficiency.</p>
+          </div>
+        </div>
+
+        <!-- SDG 11 -->
+        <div class="sdg-badge-card sdg-11" title="Make cities and human settlements inclusive, safe, resilient and sustainable">
+          <div class="sdg-number">11</div>
+          <div class="sdg-content">
+            <h4>Sustainable Cities</h4>
+            <p>Target 11.6: Reduce the adverse per capita environmental impact of urban centers like Hyderabad.</p>
+          </div>
+        </div>
+
+        <!-- SDG 12 -->
+        <div class="sdg-badge-card sdg-12" title="Ensure sustainable consumption and production patterns">
+          <div class="sdg-number">12</div>
+          <div class="sdg-content">
+            <h4>Responsible Consumption</h4>
+            <p>Target 12.2: Achieve sustainable management and efficient use of natural and grid resources.</p>
+          </div>
+        </div>
+
+        <!-- SDG 13 -->
+        <div class="sdg-badge-card sdg-13" title="Take urgent action to combat climate change and its impacts">
+          <div class="sdg-number">13</div>
+          <div class="sdg-content">
+            <h4>Climate Action</h4>
+            <p>Target 13.2: Integrate climate change measures into national policies and citizen lifestyle choices.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: Footer Note & Regulatory References -->
+    <footer class="app-footer">
+      <div class="footer-card">
+        <div class="footer-note-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <div class="footer-note-text">
+            <p class="primary-note">
+              These are estimates, not metered readings. 0.675 is an all-India average and your local grid mix may differ. Appliance watts and hours are user inputs.
+            </p>
+            <p class="secondary-note">
+              Technical references: CEA (Central Electricity Authority, Ministry of Power, Govt. of India) CO₂ Baseline Database for the Indian Power Sector, Version 22.0 (FY 2025–26) &bull; Bureau of Energy Efficiency (BEE) Room Air Conditioner 24°C Comfort Temperature Guidelines &bull; Telangana State Southern Power Distribution Company Ltd (TSSPDCL) Residential LT-I Tariff Schedule.
+            </p>
+          </div>
+        </div>
+        <div class="footer-bottom-bar">
+          <span>Environmental Studies (EVS) Case Study Prototype &bull; Hyderabad Urban Energy Audit</span>
+          <span class="footer-tag">Client-side JavaScript Engine &bull; Zero Backend &bull; Privacy Preserved in LocalStorage</span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Self-Test Toast Modal / Popover -->
+  <div id="test-toast" class="test-toast hidden">
+    <div class="test-toast-header">
+      <span class="test-toast-title">Automated Acceptance Test Results</span>
+      <button id="btn-close-toast" class="btn-close">&times;</button>
+    </div>
+    <div class="test-toast-body" id="test-toast-body">
+      <!-- Test log populated by script.js -->
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
