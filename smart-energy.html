@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- This line makes the page fit phone screens -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Energy Management (module)</title>
+  <link rel="stylesheet" href="smart-energy.css">
+</head>
+<body>
+<main class="se-page" id="se-module">
+
+  <header class="se-header">
+    <h1>Smart Energy Management</h1>
+    <p class="se-banner">
+      Sample data and estimates only. Nothing here comes from a live meter or sensor.
+      Edit the numbers below and every result updates.
+    </p>
+  </header>
+
+  <!-- ============ INPUTS ============ -->
+  <section class="se-card" aria-labelledby="se-h-inputs">
+    <h2 id="se-h-inputs">Your inputs (sample data)</h2>
+
+    <div class="se-field">
+      <label for="se-last-month">Last month's total usage (kWh)</label>
+      <input type="number" id="se-last-month" min="0" step="any">
+    </div>
+
+    <h3>Daily usage, last 14 days (kWh per day)</h3>
+    <p class="se-hint">Day 1 is the oldest day, day 14 is the newest.</p>
+    <div class="se-days" id="se-daily-log"></div>
+
+    <h3>Appliances</h3>
+    <p class="se-hint">
+      kWh = estimated use per month. Standby kWh = the part of that use drawn while the
+      device is idle. Zone is optional (default Home).
+    </p>
+    <div id="se-appliance-rows"></div>
+    <div class="se-actions">
+      <button type="button" id="se-add-row">Add appliance</button>
+      <button type="button" id="se-load-sample" class="se-secondary">Reload sample data</button>
+    </div>
+  </section>
+
+  <!-- ============ SMART ALERTS ============ -->
+  <section class="se-card" aria-labelledby="se-h-alerts">
+    <h2 id="se-h-alerts">Smart alerts <span class="se-badge" id="se-alert-count">0</span></h2>
+    <ul class="se-alerts" id="se-alert-list" aria-live="polite"></ul>
+    <p class="se-hint" id="se-ran-at"></p>
+  </section>
+
+  <!-- ============ EFFICIENCY SCORE ============ -->
+  <section class="se-card" aria-labelledby="se-h-score">
+    <h2 id="se-h-score">Energy efficiency score</h2>
+    <div class="se-score">
+      <div class="se-score-number" id="se-score-value">--</div>
+      <div class="se-score-band" id="se-score-band">--</div>
+    </div>
+    <ul class="se-breakdown" id="se-score-breakdown"></ul>
+    <p class="se-hint">
+      Project-defined score, not an official index. Thresholds are assumptions chosen for this prototype.
+      Bands: 85 and above Excellent, 70 to 84 Good, 50 to 69 Fair, below 50 Needs action.
+    </p>
+  </section>
+
+  <!-- ============ USAGE ANALYSIS ============ -->
+  <section class="se-card" aria-labelledby="se-h-usage">
+    <h2 id="se-h-usage">Usage by time window (estimate)</h2>
+    <div class="se-chart" id="se-window-chart" role="img" aria-label="Bar chart of kWh by time window"></div>
+    <p class="se-big" id="se-evening-share"></p>
+  </section>
+
+  <section class="se-card" aria-labelledby="se-h-rank">
+    <h2 id="se-h-rank">Top energy-consuming appliances (estimate)</h2>
+    <div class="se-ranked" id="se-ranked"></div>
+  </section>
+
+  <!-- ============ SELF TEST ============ -->
+  <section class="se-card" aria-labelledby="se-h-test">
+    <h2 id="se-h-test">Self-test</h2>
+    <button type="button" id="se-run-test">Run self-test</button>
+    <ul class="se-tests" id="se-test-output"></ul>
+  </section>
+
+</main>
+<script src="smart-energy.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- This line makes the page fit phone screens instead of shrinking to desktop width. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Energy Cost and Sustainability</title>
+  <link rel="stylesheet" href="energy-cost.css">
+</head>
+<body>
+
+<!--
+  INTEGRATION NOTE FOR THE TEAM LEAD
+  Everything this module needs is inside <main class="ec-module">.
+  To merge: copy that <main> block into the main dashboard page, add
+  energy-cost.css in <head>, and add energy-cost.js before </body>.
+  All class names start with "ec-" and all IDs start with "ec-", so they
+  will not clash with existing names.
+-->
+<main class="ec-module" id="energy-cost-module">
+
+  <header class="ec-header">
+    <h1>Energy cost and sustainability</h1>
+    <p class="ec-lead">
+      Estimate a Telangana household electricity bill, test a time-of-day
+      what-if, and see what rooftop solar could change.
+    </p>
+    <p class="ec-banner" role="note">
+      <strong>All numbers are estimates.</strong> They come from the values you
+      type in. This page does not read a meter and shows no live data.
+    </p>
+  </header>
+
+  <!-- ============ FEATURE 1: BILL ============ -->
+  <section class="ec-section" aria-labelledby="ec-bill-title">
+    <h2 id="ec-bill-title">1. Estimated electricity bill (Telangana, FY 2026–27)</h2>
+    <p class="ec-help">
+      Step 1: enter the units (kWh) used in one month. The total decides which
+      price table applies. Step 2: each slab’s rate is charged only for the
+      units that fall inside that slab.
+    </p>
+
+    <div class="ec-fields">
+      <div class="ec-field">
+        <label for="ec-units">Units used this month (kWh)</label>
+        <input id="ec-units" type="number" inputmode="decimal" min="0" step="1" value="420">
+      </div>
+      <div class="ec-field">
+        <label for="ec-flat">Flat rate override (₹ per unit, optional)</label>
+        <input id="ec-flat" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Leave empty to use slabs">
+        <span class="ec-hint">If you type a rate here, every unit is charged at that rate and the slabs are ignored.</span>
+      </div>
+    </div>
+    <p id="ec-bill-status" class="ec-status" role="alert" hidden></p>
+
+    <div class="ec-results">
+      <div class="ec-result ec-result--main">
+        <span class="ec-result-label">Estimated energy charges</span>
+        <span class="ec-result-value" id="ec-bill-total">–</span>
+      </div>
+      <div class="ec-result">
+        <span class="ec-result-label">Average per unit</span>
+        <span class="ec-result-value" id="ec-bill-avg">–</span>
+      </div>
+      <div class="ec-result">
+        <span class="ec-result-label">Method used</span>
+        <span class="ec-result-value ec-result-value--text" id="ec-bill-category">–</span>
+      </div>
+    </div>
+
+    <div class="ec-table-wrap">
+      <table class="ec-table">
+        <caption>How the estimate is built, slab by slab</caption>
+        <thead>
+          <tr>
+            <th scope="col">Slab (units)</th>
+            <th scope="col">Units in slab</th>
+            <th scope="col">Rate (₹/unit)</th>
+            <th scope="col">Charge (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="ec-bill-body"></tbody>
+      </table>
+    </div>
+
+    <p class="ec-note">
+      Estimated energy charges only. The fixed charge (₹10 per kW per month),
+      fuel and power-purchase adjustments (FSA/FCA) and electricity duty are
+      extra and are not included. Compare with one real bill before relying on it.
+    </p>
+  </section>
+
+  <!-- ============ FEATURE 2: TIME OF DAY ============ -->
+  <section class="ec-section" aria-labelledby="ec-tod-title">
+    <h2 id="ec-tod-title">2. Time-of-day what-if</h2>
+    <p class="ec-whatif-label" id="ec-tod-label">What-if, not your actual bill</p>
+    <p class="ec-help">
+      Time-of-day pricing does not apply to homes in Telangana in FY 2026–27.
+      This is only a thought experiment: how many rupees would your usage move
+      if it did? Split your month’s units into three time windows.
+    </p>
+
+    <div class="ec-fields ec-fields--three">
+      <div class="ec-field">
+        <label for="ec-tod-peak">Peak kWh <span class="ec-hint-inline">(6–10 am and 6–10 pm, +₹1.50)</span></label>
+        <input id="ec-tod-peak" type="number" inputmode="decimal" min="0" step="1" value="180">
+      </div>
+      <div class="ec-field">
+        <label for="ec-tod-day">Daytime kWh <span class="ec-hint-inline">(10 am–6 pm, −₹0.50)</span></label>
+        <input id="ec-tod-day" type="number" inputmode="decimal" min="0" step="1" value="140">
+      </div>
+      <div class="ec-field">
+        <label for="ec-tod-night">Night kWh <span class="ec-hint-inline">(10 pm–6 am, ₹0)</span></label>
+        <input id="ec-tod-night" type="number" inputmode="decimal" min="0" step="1" value="100">
+      </div>
+    </div>
+    <p id="ec-tod-status" class="ec-status" role="alert" hidden></p>
+
+    <div class="ec-results">
+      <div class="ec-result ec-result--main">
+        <span class="ec-result-label">Extra cost (+) or saving (−), what-if</span>
+        <span class="ec-result-value" id="ec-tod-delta">–</span>
+      </div>
+      <div class="ec-result">
+        <span class="ec-result-label">Total units entered</span>
+        <span class="ec-result-value" id="ec-tod-total">–</span>
+      </div>
+    </div>
+    <p class="ec-note" id="ec-tod-detail"></p>
+  </section>
+
+  <!-- ============ FEATURE 3: SOLAR ============ -->
+  <section class="ec-section" aria-labelledby="ec-solar-title">
+    <h2 id="ec-solar-title">3. Rooftop solar what-if</h2>
+    <p class="ec-help">
+      This uses the monthly units and optional flat rate from Section 1. Change
+      the three solar values below to try different systems. Every output is an
+      estimate.
+    </p>
+
+    <div class="ec-fields ec-fields--three">
+      <div class="ec-field">
+        <label for="ec-solar-kw">System size (kW)</label>
+        <input id="ec-solar-kw" type="number" inputmode="decimal" min="0" step="0.5" value="2">
+      </div>
+      <div class="ec-field">
+        <label for="ec-solar-yield">Yield (kWh per kW per day)</label>
+        <input id="ec-solar-yield" type="number" inputmode="decimal" min="0" step="0.1" value="4.0">
+      </div>
+      <div class="ec-field">
+        <label for="ec-solar-cost">Installed cost (₹ per kW)</label>
+        <input id="ec-solar-cost" type="number" inputmode="decimal" min="0" step="1000" value="65000">
+      </div>
+    </div>
+    <p id="ec-solar-status" class="ec-status" role="alert" hidden></p>
+
+    <div class="ec-solar-layout">
+      <div class="ec-donut-card">
+        <div id="ec-donut" class="ec-donut"></div>
+        <ul id="ec-donut-legend" class="ec-legend"></ul>
+      </div>
+
+      <div class="ec-results ec-results--stack">
+        <div class="ec-result">
+          <span class="ec-result-label">Solar generation (per month)</span>
+          <span class="ec-result-value" id="ec-solar-gen">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">Grid consumption (per month)</span>
+          <span class="ec-result-value" id="ec-solar-grid">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">CO₂ avoided (per month)</span>
+          <span class="ec-result-value" id="ec-solar-co2">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">Estimated charges before solar</span>
+          <span class="ec-result-value" id="ec-solar-before">–</span>
+        </div>
+        <div class="ec-result ec-result--main">
+          <span class="ec-result-label">Estimated charges after solar</span>
+          <span class="ec-result-value" id="ec-solar-after">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">Monthly saving</span>
+          <span class="ec-result-value" id="ec-solar-saving">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">Subsidy (PM Surya Ghar formula)</span>
+          <span class="ec-result-value" id="ec-solar-subsidy">–</span>
+        </div>
+        <div class="ec-result">
+          <span class="ec-result-label">Cost after subsidy</span>
+          <span class="ec-result-value" id="ec-solar-net">–</span>
+        </div>
+        <div class="ec-result ec-result--main">
+          <span class="ec-result-label">Payback period</span>
+          <span class="ec-result-value" id="ec-solar-payback">–</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="ec-note">
+      Simplifications: all solar units are assumed to offset your own use
+      (net-metering style), the subsidy rule is the published central scheme,
+      and the cost per kW is a typical value you can edit. Telangana
+      net-metering terms and local installer prices were not verified. CO₂
+      avoided uses the all-India grid average of 0.675 kg per kWh (CEA,
+      FY 2025–26). The solar share shown here is for your sample home, not
+      India’s share of clean power.
+    </p>
+  </section>
+
+  <!-- ============ FEATURE 4: SDG ============ -->
+  <section class="ec-section" aria-labelledby="ec-sdg-title">
+    <h2 id="ec-sdg-title">4. Sustainable Development Goals</h2>
+    <p class="ec-help">The five UN goals this project connects to.</p>
+
+    <ul class="ec-sdg-list">
+      <li class="ec-sdg" style="--sdg: #FCC30B;">
+        <span class="ec-sdg-num">7</span>
+        <div>
+          <h3>Affordable and Clean Energy</h3>
+          <p>Shows what electricity costs and how rooftop solar could cut it.</p>
+        </div>
+      </li>
+      <li class="ec-sdg" style="--sdg: #FD9D24;">
+        <span class="ec-sdg-num">11</span>
+        <div>
+          <h3>Sustainable Cities and Communities</h3>
+          <p>Helps urban households such as those in Hyderabad understand their energy footprint.</p>
+        </div>
+      </li>
+      <li class="ec-sdg" style="--sdg: #BF8B2E;">
+        <span class="ec-sdg-num">12</span>
+        <div>
+          <h3>Responsible Consumption and Production</h3>
+          <p>Shows how usage patterns change the bill, so people can choose to use less.</p>
+        </div>
+      </li>
+      <li class="ec-sdg" style="--sdg: #3F7E44;">
+        <span class="ec-sdg-num">13</span>
+        <div>
+          <h3>Climate Action</h3>
+          <p>Estimates the CO₂ that solar would avoid each month.</p>
+        </div>
+      </li>
+      <li class="ec-sdg" style="--sdg: #19486A;">
+        <span class="ec-sdg-num">17</span>
+        <div>
+          <h3>Partnerships for the Goals</h3>
+          <p>
+            <strong>Target 17.17:</strong> encourage and promote effective
+            public, public-private and civil society partnerships. This
+            module relies on public bodies’ data and schemes (CEA, TGERC,
+            PM Surya Ghar) and is meant to be used by citizens.
+          </p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ SELF TEST ============ -->
+  <section class="ec-section" aria-labelledby="ec-test-title">
+    <h2 id="ec-test-title">Self-test</h2>
+    <p class="ec-help">
+      Runs the check values (150 units = ₹580, 200 = ₹820, 201 = ₹1,027.70,
+      420 = ₹2,880 and the solar example) against the code.
+    </p>
+    <button type="button" id="ec-run-test" class="ec-button">Run self-test</button>
+    <p id="ec-test-summary" class="ec-test-summary" aria-live="polite"></p>
+    <ul id="ec-test-results" class="ec-test-results"></ul>
+  </section>
+
+  <footer class="ec-footer">
+    Prototype for an EVS case study. Rates: TGERC retail tariff schedule FY 2026–27.
+    Grid factor: CEA CO₂ Baseline Database v22.0. Solar subsidy: PM Surya Ghar.
+    Estimates only, not metered data.
+  </footer>
+</main>
+
+<script src="energy-cost.js"></script>
+</body>
+</html>

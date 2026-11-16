@@ -1,0 +1,131 @@
+/* All class names start with "se-" so they will not clash with the
+   existing dashboard's CSS when your team lead merges the files. */
+
+/* STEP 1: colours and sizes in one place (CSS variables) */
+.se-page {
+  --se-bg: #f3f6f4;
+  --se-card: #ffffff;
+  --se-text: #1d2b25;
+  --se-muted: #5a6b63;
+  --se-line: #d5dfd9;
+  --se-accent: #1f6f50;
+  --se-warn: #b45309;
+  --se-info: #1d4e89;
+  --se-crit: #b42318;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--se-text);
+  line-height: 1.5;
+}
+body { margin: 0; background: #f3f6f4; }
+
+.se-header h1 { margin: 8px 0; font-size: 1.5rem; }
+.se-banner {
+  margin: 0 0 12px; padding: 10px 12px;
+  background: #fff7e0; border-left: 4px solid var(--se-warn);
+  font-size: 0.9rem;
+}
+
+/* STEP 2: cards (one box per feature) */
+.se-card {
+  background: var(--se-card);
+  border: 1px solid var(--se-line);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.se-card h2 { margin: 0 0 10px; font-size: 1.15rem; }
+.se-card h3 { margin: 16px 0 4px; font-size: 1rem; }
+.se-hint { margin: 4px 0 8px; font-size: 0.85rem; color: var(--se-muted); }
+
+/* STEP 3: form controls */
+.se-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.se-field label, .se-days label { font-size: 0.85rem; color: var(--se-muted); }
+.se-page input, .se-page select {
+  font: inherit; padding: 8px; min-height: 40px; width: 100%;
+  border: 1px solid var(--se-line); border-radius: 6px; box-sizing: border-box;
+  background: #fff; color: var(--se-text);
+}
+.se-page button {
+  font: inherit; padding: 10px 14px; min-height: 44px; cursor: pointer;
+  border: 0; border-radius: 6px; background: var(--se-accent); color: #fff;
+}
+.se-page button.se-secondary { background: #e4ece7; color: var(--se-text); }
+.se-page button:focus-visible, .se-page input:focus-visible, .se-page select:focus-visible {
+  outline: 3px solid #7fb8a0; outline-offset: 1px;
+}
+.se-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* 14 day boxes: 3 per row on phones, 7 per row on wider screens */
+.se-days { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.se-days div { display: flex; flex-direction: column; gap: 2px; }
+
+/* Appliance rows: one stacked block per appliance on phones */
+.se-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  padding: 10px 0; border-top: 1px solid var(--se-line);
+}
+.se-row .se-field { margin: 0; }
+.se-row .se-span2 { grid-column: 1 / -1; }
+.se-row .se-remove { background: #f6e3e1; color: var(--se-crit); grid-column: 1 / -1; }
+
+/* STEP 4: alerts */
+.se-badge {
+  display: inline-block; min-width: 1.6em; padding: 0 8px; margin-left: 6px;
+  border-radius: 999px; background: var(--se-accent); color: #fff;
+  font-size: 0.85rem; text-align: center;
+}
+.se-alerts { list-style: none; margin: 0; padding: 0; }
+.se-alerts li { padding: 10px 12px; margin-bottom: 8px; border-left: 5px solid; border-radius: 4px; background: #f7f9f8; }
+.se-alerts li.se-sev-critical { border-color: var(--se-crit); }
+.se-alerts li.se-sev-warning  { border-color: var(--se-warn); }
+.se-alerts li.se-sev-info     { border-color: var(--se-info); }
+.se-sev { font-weight: 700; margin-right: 6px; }
+.se-sev-critical .se-sev { color: var(--se-crit); }
+.se-sev-warning .se-sev  { color: var(--se-warn); }
+.se-sev-info .se-sev     { color: var(--se-info); }
+
+/* STEP 5: score */
+.se-score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.se-score-number { font-size: 3rem; font-weight: 700; line-height: 1; }
+.se-score-band { font-size: 1.2rem; font-weight: 700; padding: 2px 12px; border-radius: 999px; background: #e4ece7; }
+.se-score-band.se-excellent { background: #cfeedd; color: #14532d; }
+.se-score-band.se-good      { background: #e1f1c9; color: #3f5d12; }
+.se-score-band.se-fair      { background: #fde9b8; color: #7a4a05; }
+.se-score-band.se-action    { background: #f9d3cf; color: #8a1c12; }
+.se-breakdown { margin: 10px 0; padding-left: 18px; font-size: 0.9rem; }
+
+/* STEP 6: four-bar chart and ranked bars */
+.se-chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: end; }
+.se-col { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.8rem; }
+.se-track { height: 150px; width: 100%; display: flex; align-items: flex-end; background: #eef3f0; border-radius: 4px; }
+.se-bar { width: 100%; background: var(--se-accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+.se-bar.se-peak { background: var(--se-warn); }
+.se-big { margin: 12px 0 0; font-size: 1.05rem; font-weight: 600; }
+
+.se-rank-row { margin-bottom: 10px; }
+.se-rank-head { display: flex; justify-content: space-between; gap: 8px; font-size: 0.9rem; }
+.se-rank-zone { color: var(--se-muted); font-size: 0.8rem; }
+.se-rank-track { height: 14px; background: #eef3f0; border-radius: 4px; }
+.se-rank-bar { height: 100%; background: var(--se-accent); border-radius: 4px; }
+
+/* STEP 7: self-test results */
+.se-tests { list-style: none; padding: 0; margin: 10px 0 0; font-size: 0.9rem; }
+.se-tests .se-pass { color: #14532d; }
+.se-tests .se-fail { color: var(--se-crit); font-weight: 700; }
+
+/* STEP 8: bigger screens */
+@media (min-width: 600px) {
+  .se-days { grid-template-columns: repeat(7, 1fr); }
+  .se-row { grid-template-columns: 2fr 1fr 1fr 1fr 1.4fr auto; align-items: end; }
+  .se-row .se-span2 { grid-column: auto; }
+  .se-row .se-remove { grid-column: auto; }
+}
+
+/* Print: hide buttons and inputs' extra chrome */
+@media print {
+  .se-actions, #se-run-test, .se-remove { display: none; }
+  .se-card { break-inside: avoid; }
+}

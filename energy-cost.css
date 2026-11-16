@@ -1,0 +1,206 @@
+/* =====================================================
+   energy-cost.css
+   Every rule starts with .ec-module (or an ec- class) so it cannot
+   change the look of the rest of the dashboard when merged.
+   ===================================================== */
+
+/* Colours live here as "variables". Change a colour once, it updates everywhere. */
+.ec-module {
+  --ec-ink: #14283b;        /* main text */
+  --ec-muted: #51657a;      /* secondary text */
+  --ec-paper: #ffffff;      /* card background */
+  --ec-page: #eef2f6;       /* page background */
+  --ec-line: #cfd8e1;       /* borders */
+  --ec-solar: #e69b00;      /* solar / highlight */
+  --ec-grid: #4f6b86;       /* grid electricity */
+  --ec-good: #1c7a57;
+  --ec-warn-bg: #fff4d6;
+  --ec-warn-ink: #5a4100;
+  --ec-error: #a32121;
+
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--ec-page);
+  color: var(--ec-ink);
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.55;
+}
+
+.ec-module *,
+.ec-module *::before,
+.ec-module *::after { box-sizing: border-box; }
+
+/* ---------- Headings and text ---------- */
+.ec-module h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 8px; }
+.ec-module h2 { font-size: 1.25rem; line-height: 1.3; margin: 0 0 8px; }
+.ec-module h3 { font-size: 1rem; margin: 0 0 2px; }
+.ec-module p  { margin: 0 0 12px; max-width: 70ch; }
+
+.ec-lead { color: var(--ec-muted); }
+
+.ec-banner {
+  background: var(--ec-warn-bg);
+  color: var(--ec-warn-ink);
+  border-left: 4px solid var(--ec-solar);
+  padding: 10px 12px;
+  border-radius: 4px;
+}
+
+.ec-help  { color: var(--ec-muted); }
+.ec-note  { font-size: 0.875rem; color: var(--ec-muted); margin-top: 14px; }
+
+/* ---------- Sections (cards) ---------- */
+.ec-section {
+  background: var(--ec-paper);
+  border: 1px solid var(--ec-line);
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+/* ---------- Form fields ---------- */
+.ec-fields {
+  display: grid;
+  grid-template-columns: 1fr;       /* one column on phones */
+  gap: 14px;
+  margin: 14px 0;
+}
+.ec-field { display: flex; flex-direction: column; gap: 4px; }
+.ec-field label { font-weight: 600; font-size: 0.95rem; }
+.ec-hint, .ec-hint-inline { font-size: 0.8rem; font-weight: 400; color: var(--ec-muted); }
+
+.ec-module input[type="number"] {
+  width: 100%;
+  min-height: 44px;                  /* easy to tap */
+  padding: 8px 10px;
+  font-size: 1rem;
+  color: var(--ec-ink);
+  background: #fff;
+  border: 1px solid #8a9bad;
+  border-radius: 6px;
+}
+.ec-module input[type="number"].ec-invalid { border-color: var(--ec-error); border-width: 2px; }
+
+/* Clear keyboard focus for accessibility */
+.ec-module input:focus-visible,
+.ec-module button:focus-visible {
+  outline: 3px solid var(--ec-solar);
+  outline-offset: 2px;
+}
+
+.ec-status { color: var(--ec-error); font-weight: 600; }
+
+/* ---------- Result tiles ---------- */
+.ec-results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+.ec-result {
+  background: var(--ec-page);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.ec-result--main { background: #fdf0cf; border: 1px solid var(--ec-solar); }
+.ec-result-label { font-size: 0.85rem; color: var(--ec-muted); }
+.ec-result-value { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ec-result-value--text { font-size: 1rem; }
+
+/* ---------- Table ---------- */
+.ec-table-wrap { overflow-x: auto; }     /* table scrolls sideways on tiny screens */
+.ec-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 440px; }
+.ec-table caption { text-align: left; font-weight: 600; padding: 6px 0; }
+.ec-table th, .ec-table td { padding: 8px; border-bottom: 1px solid var(--ec-line); text-align: right; }
+.ec-table th:first-child, .ec-table td:first-child { text-align: left; }
+.ec-table td { font-variant-numeric: tabular-nums; }
+.ec-table tr.ec-row-empty td { color: var(--ec-muted); }
+
+/* ---------- Time-of-day label ---------- */
+.ec-whatif-label {
+  display: inline-block;
+  background: var(--ec-ink);
+  color: #fff;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ---------- Solar layout and donut ---------- */
+.ec-solar-layout { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 14px; }
+.ec-donut-card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ec-donut { width: 100%; max-width: 240px; }
+.ec-donut svg { width: 100%; height: auto; display: block; }
+.ec-donut-track  { fill: none; stroke: var(--ec-grid);  stroke-width: 5; }
+.ec-donut-solar  { fill: none; stroke: var(--ec-solar); stroke-width: 5; }
+.ec-donut-text   { font-size: 6px; font-weight: 700; fill: var(--ec-ink); text-anchor: middle; }
+.ec-donut-sub    { font-size: 2.6px; fill: var(--ec-muted); text-anchor: middle; }
+
+.ec-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; }
+.ec-legend li { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+.ec-swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.ec-swatch--solar { background: var(--ec-solar); }
+.ec-swatch--grid  { background: var(--ec-grid); }
+
+/* ---------- SDG list ---------- */
+.ec-sdg-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
+.ec-sdg {
+  display: flex; gap: 12px; align-items: flex-start;
+  border: 1px solid var(--ec-line);
+  border-left: 6px solid var(--sdg);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ec-sdg-num {
+  flex: 0 0 auto;
+  min-width: 44px; height: 44px;
+  display: grid; place-items: center;
+  background: var(--sdg);
+  color: #fff;
+  font-weight: 800; font-size: 1.2rem;
+  border-radius: 6px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.55);   /* keeps white digits readable on yellow */
+}
+.ec-sdg p { margin: 0; font-size: 0.92rem; color: var(--ec-muted); }
+
+/* ---------- Self-test ---------- */
+.ec-button {
+  min-height: 44px;
+  padding: 8px 18px;
+  font-size: 1rem; font-weight: 600;
+  color: #fff; background: var(--ec-ink);
+  border: 0; border-radius: 6px; cursor: pointer;
+}
+.ec-button:hover { background: #20405c; }
+.ec-test-summary { margin-top: 12px; font-weight: 700; }
+.ec-test-results { list-style: none; margin: 0; padding: 0; font-size: 0.9rem; }
+.ec-test-results li { padding: 4px 0; border-bottom: 1px solid var(--ec-line); }
+.ec-pass { color: var(--ec-good); font-weight: 700; }
+.ec-fail { color: var(--ec-error); font-weight: 700; }
+
+.ec-footer { margin-top: 16px; font-size: 0.8rem; color: var(--ec-muted); }
+
+/* ---------- Wider screens ---------- */
+@media (min-width: 640px) {
+  .ec-module { padding: 24px; }
+  .ec-module h1 { font-size: 2rem; }
+  .ec-fields { grid-template-columns: 1fr 1fr; }
+  .ec-fields--three { grid-template-columns: repeat(3, 1fr); }
+  .ec-results { grid-template-columns: repeat(3, 1fr); }
+  .ec-sdg-list { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 820px) {
+  .ec-solar-layout { grid-template-columns: 260px 1fr; align-items: start; }
+  .ec-results--stack { grid-template-columns: 1fr 1fr; margin-top: 0; }
+}
+
+/* ---------- Print: plain, no shadows ---------- */
+@media print {
+  .ec-module { background: #fff; padding: 0; }
+  .ec-button, .ec-test-results, .ec-test-summary { display: none; }
+  .ec-section { break-inside: avoid; }
+}
